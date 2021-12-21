@@ -36,8 +36,8 @@ for name in names:
 
 for i in pairs:
     # this will enable you see how the pairing is
-    print(i[0] + " give gft to " + i[1] + "send this email to " + emails[
-        names.index(i[1])] + " list of gifts  includes: " + gifts[names.index(l[0])])
+    print(i[0] + " give gift to " + i[1] + "send this email to " + emails[
+        names.index(i[1])] + " list of gifts  includes: " + gifts[names.index(i[0])])
 
     giver = i[0]
     recipient = i[1]
