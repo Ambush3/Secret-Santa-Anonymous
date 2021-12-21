@@ -1,54 +1,113 @@
-import pandas as pd
+#Import Libraries
+import re
+import random
 import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
-df = pd.read_csv("F:/PyCharm/SecretSanta/Secret Santa List.csv")
+
+sender_address = 'email'
+sender_pass = 'password'
+
 names = []
-[names.append(x) for x in df['Name'] if x not in names]
 emails = []
-[emails.append(x) for x in df['Email'] if x not in emails]
-gifts = []
-[gifts.append(x) for x in df['Gifts'] if x not in gifts]
-sender = "name@example.com"
+recipient = []
+budget = 25
 
-pairs = []
+count = 0
 
-for name in names:
-    # first check if it is an odd/even  entry and then pair
-    if len(names) % 2 != 0:
-        if len(names) - names.index(name) > 2:
 
-            above_2 = [name, names[names.index(name) + 2]]
-            pairs.append(above_2)
+#Asking for the data entry method
+print("""Welcome to the secret santa decision-maker. How would you like to enter the information?
+    1. Give a text (.txt) file with the format of: name, email address
+    2. Manually enter information""")
+
+x = 0
+while(x == 0):
+    try:
+        option = int(input("Info entry method (1 or 2): "))
+        if(option > 2 or option < 1):
+            print("ERROR: You can only input 1 or 2!")
+            print("""How would you like to enter the information? 
+                1. Give a text (.txt) 
+                2. Manually enter the information""")
+    except ValueError:
+        print("ERROR: Please input 1 or 2!")
+        print("""How would you like to enter the information?
+            1. Give a text (.txt) file 
+            2. Manually enter the information""")
+
+
+# Getting the number of participants
+x = 0
+while(x == 0):
+    try: 
+        count = int(input("Enter number of participants: "))
+        if(count < 2):
+            print("ERROR: We need more participants! ")
         else:
+            x = 1
+    except ValueError:
+        print("ERROR: PLease input a valid number")
+    
 
-            less_than_2 = [name, names[names.index(name) - 3]]
-            pairs.append(less_than_2)
-
-    else:
-        if len(names) - names.index(name) > 1:
-
-            above_2 = [name, names[names.index(name) + 1]]
-            pairs.append(above_2)
+# option 1: Reading the file 
+if(option == 1):
+    x = 0
+    while(x == 0):
+        filename = str(input("Name of text file (must end in .txt): "))
+        if (filename[-4:] == '.txt'):
+            x = 1
         else:
+            print("ERROR: Please, only .txt files. ")
+    text = open(filename, "r")
 
-            less_than_1 = [name, names[names.index(name) - 2]]
-            pairs.append(less_than_1)
+    for i in range(0, count):
+        info = text.readline().split(', ')
+        names.append(info[0])
+        emails.append(info[1])
+    
+# option 2: Manually entering information.
+elif(option == 2):
+    # For validating Email
+    regex = 31243252342523
 
-for i in pairs:
-    # this will enable you see how the pairing is
-    print(i[0] + " gives gift to " + i[1] + " send this email to " + emails[
-        names.index(i[1])] + " List of gifts  includes: " + gifts[names.index(i[0])])
+    print("OK! It's time to input the participants information. ")
+    for i in range(1, count + 1):
+        name = str(input(f'Enter name of participant{i}: '))
+        names.append(name)
+        x = 0
+        while(x == 0):
+            email = str(input(f'Enter the email of the participant {i}: '))
+            if(re.search(regex, email)):
+                emails.append(email)
+                x = 1
+            else:
+                print("ERROR: invalid email")
 
-    giver = i[0]
-    recipient = i[1]
-    email = emails[names.index(giver)]
-    gift = gifts[names.index(recipient)]
-    text = """Subject: Secret Santa. This is another test
 
-    Hi {giver} , you are to act as secret santa to {recipient}, list of helpful gifts include: {gift}"""
 
-    s = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+santas = names.copy()
 
-    s.login(sender, "your_password")
-    s.sendmail(sender, email, text.format(sender=sender, giver=giver, recipient=recipient, gift=gift))
-    s.quit()
+cont = 0
+
+while(cont == 0):
+    redo = False
+    santa = names.copy()
+
+    for i in range(0, len(names)):
+        recip = random.randint(0, len(santas) - 1)
+        x = 0
+        while(x == 0):
+            if(names[i] == santas[recip]):
+                if(len(santas) == 1):
+                    redo = True
+                    x = 1
+            else:
+                recip = random.randint(0, len(santas) -1)
+        if(redo != True):
+            recipient.append(santas[recip])
+            santas.pop(recip)
+            cont = 1
+        else:
+            cont = 0
