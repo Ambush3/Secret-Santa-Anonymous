@@ -12,102 +12,108 @@ sender_pass = 'password'
 names = []
 emails = []
 recipient = []
-budget = 25
+budget = 50
 
 count = 0
 
+print("""Welcome to the secret santa decision-maker!
+How would you like to enter the information?
+     1. give a text (.txt) file with format of:
+         name, email address
+     2. manually enter information""")
 
-#Asking for the data entry method
-print("""Welcome to the secret santa decision-maker. How would you like to enter the information?
-    1. Give a text (.txt) file with the format of: name, email address
-    2. Manually enter information""")
-
+# info entry method choice
 x = 0
-while(x == 0):
+while x == 0:
     try:
         option = int(input("Info entry method (1 or 2): "))
-        if(option > 2 or option < 1):
+        if option > 2 or option < 1:
             print("ERROR: You can only input 1 or 2!")
-            print("""How would you like to enter the information? 
-                1. Give a text (.txt) 
-                2. Manually enter the information""")
+            print("""HOW would you like to enter the information? 
+                    1. give a csv (.csv) file with format of:
+                         name, email address
+                     2. manually enter information """)
+        else:
+            x = 1
+
     except ValueError:
-        print("ERROR: Please input 1 or 2!")
-        print("""How would you like to enter the information?
-            1. Give a text (.txt) file 
-            2. Manually enter the information""")
+        print("ERROR: Please input 1 or 2")
+        print("""HOW would you like to enter the information? 
+        1. give a text (.txt) file with format of:
+             name, email address
+         2. manually enter information """)
 
-
-# Getting the number of participants
+# number of participants
 x = 0
-while(x == 0):
-    try: 
+while x == 0:
+    try:
         count = int(input("Enter number of participants: "))
-        if(count < 2):
-            print("ERROR: We need more participants! ")
+        if count < 2:
+            print("ERROR: Number of participants must be 2 or more!")
         else:
             x = 1
     except ValueError:
-        print("ERROR: PLease input a valid number")
-    
+        print("ERROR: Please input a valid integer number!")
 
-# option 1: Reading the file 
-if(option == 1):
+# option 1: read the file
+if option == 1:
     x = 0
-    while(x == 0):
-        filename = str(input("Name of text file (must end in .txt): "))
-        if (filename[-4:] == '.txt'):
+    while x == 0:
+        filename = str(input("Name of csv file (must end in .csv): "))
+        if filename[-4:] == '.csv':
             x = 1
         else:
-            print("ERROR: Please, only .txt files. ")
+            print("ERROR: Please input a file name which ends with .txt")
     text = open(filename, "r")
-
     for i in range(0, count):
         info = text.readline().split(', ')
         names.append(info[0])
         emails.append(info[1])
-    
-# option 2: Manually entering information.
-elif(option == 2):
-    # For validating Email
-    regex = 31243252342523
 
-    print("OK! It's time to input the participants information. ")
+
+# option 2: manually get info
+elif option == 2:
+
+    regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+
+    print("Input the participants' information!")
     for i in range(1, count + 1):
-        name = str(input(f'Enter name of participant{i}: '))
+        name = str(input(f'Name of participant {i}: '))
         names.append(name)
         x = 0
-        while(x == 0):
-            email = str(input(f'Enter the email of the participant {i}: '))
-            if(re.search(regex, email)):
+        while x == 0:
+            email = str(input(f'Enter the email of participant {i}: '))
+            if re.search(regex, email):
                 emails.append(email)
                 x = 1
             else:
-                print("ERROR: invalid email")
+                print("ERROR: invalid email!")
 
-
-
-santas = names.copy()
+possible_santa = names.copy()
 
 cont = 0
 
-while(cont == 0):
+while cont == 0:
+
     redo = False
-    santa = names.copy()
+
+    possible_santa = names.copy()
 
     for i in range(0, len(names)):
-        recip = random.randint(0, len(santas) - 1)
+        recip = random.randint(0, len(possible_santa) - 1)
         x = 0
-        while(x == 0):
-            if(names[i] == santas[recip]):
-                if(len(santas) == 1):
+        while x == 0:
+            if names[i] == possible_santa[recip]:
+                if len(possible_santa) == 1:
                     redo = True
                     x = 1
+                else:
+                    recip = random.randint(0, len(possible_santa) - 1)
             else:
-                recip = random.randint(0, len(santas) -1)
-        if(redo != True):
-            recipient.append(santas[recip])
-            santas.pop(recip)
+                x = 1
+        if not redo:
+            recipient.append(possible_santa[recip])
+            possible_santa.pop(recip)
             cont = 1
         else:
             cont = 0
